@@ -1,0 +1,29 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model DailyDepositSummary {
+  dateKey      String   @id // "YYYY-MM-DD"
+  c2cDeposit   Float
+  totalDeposit Float
+  updatedAt    DateTime @updatedAt
+}
+
+model DailyBonusSummary {
+  dateKey     String   @id // "YYYY-MM-DD"
+  bonusAmount Float
+  updatedAt   DateTime @updatedAt
+}
+
+model FileMeta {
+  type       String   @id // "deposit" or "bonus"
+  fileName   String
+  rowCount   Int
+  uploadedAt DateTime
+}
