@@ -41,43 +41,54 @@ function KpiCard({
   );
 }
 
-/** หาวันล่าสุดที่มีข้อมูลใน records */
-function getLatestDateKey(depositRecords: { dateKey: string }[], bonusRecords: { dateKey: string }[]): string | null {
+// dateKey format ในระบบนี้คือ "DD/MM/YYYY"
+
+/** แปลง dateKey "DD/MM/YYYY" → input value "YYYY-MM-DD" สำหรับ <input type="date"> */
+function dateKeyToInputValue(dateKey: string): string {
+  const [d, m, y] = dateKey.split("/");
+  return `${y}-${m}-${d}`;
+}
+
+/** แปลง input value "YYYY-MM-DD" → dateKey "DD/MM/YYYY" */
+function inputValueToDateKey(value: string): string {
+  const [y, m, d] = value.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+/** หาวันล่าสุดที่มีข้อมูล (dateKey format "DD/MM/YYYY") */
+function getLatestDateKey(
+  depositRecords: { dateKey: string }[],
+  bonusRecords: { dateKey: string }[]
+): string | null {
   const allKeys = new Set([
     ...depositRecords.map((r) => r.dateKey),
     ...bonusRecords.map((r) => r.dateKey),
   ]);
   if (allKeys.size === 0) return null;
-  return [...allKeys].sort().reverse()[0]; // คืน key ล่าสุด เช่น "2026-07-29"
-}
 
-/** แปลง dateKey "YYYY-MM-DD" → Date object (local) */
-function dateKeyToDate(key: string): Date {
-  const [y, m, d] = key.split("-").map(Number);
-  return new Date(y, m - 1, d);
-}
-
-/** แสดงวันแบบ "วันที่ DD/MM/YYYY" */
-function formatDateDisplay(key: string): string {
-  const [y, m, d] = key.split("-");
-  return `${d}/${m}/${y}`;
+  // Sort by converting to YYYY-MM-DD for correct chronological order
+  const sorted = [...allKeys].sort((a, b) => {
+    return dateKeyToInputValue(a) < dateKeyToInputValue(b) ? -1 : 1;
+  });
+  return sorted[sorted.length - 1]; // วันล่าสุด
 }
 
 export function KpiCards() {
   const { depositRecords, bonusRecords } = useC2CData();
 
   const today = new Date();
-  const todayKey = toDateKey(today);
+  const todayKey = toDateKey(today); // "DD/MM/YYYY"
 
-  // หา dateKey ที่จะแสดง: วันนี้ถ้ามีข้อมูล ไม่งั้นใช้วันล่าสุดที่มีข้อมูล
+  // หาวันล่าสุดที่มีข้อมูล
   const latestKey = React.useMemo(
     () => getLatestDateKey(depositRecords, bonusRecords),
     [depositRecords, bonusRecords]
   );
 
+  // ถ้าวันนี้มีข้อมูล → ใช้วันนี้, ไม่งั้น fallback ไปวันล่าสุด
   const defaultKey = React.useMemo(() => {
-    // ถ้าวันนี้มีข้อมูล → ใช้วันนี้, ไม่งั้น fallback ไปวันล่าสุด
-    const hasTodayData = depositRecords.some((r) => r.dateKey === todayKey) ||
+    const hasTodayData =
+      depositRecords.some((r) => r.dateKey === todayKey) ||
       bonusRecords.some((r) => r.dateKey === todayKey);
     if (hasTodayData) return todayKey;
     return latestKey ?? todayKey;
@@ -85,18 +96,20 @@ export function KpiCards() {
 
   const [selectedKey, setSelectedKey] = React.useState<string>(defaultKey);
 
-  // เมื่อ defaultKey เปลี่ยน (เช่น upload ไฟล์ใหม่) ให้ reset
+  // เมื่อ data โหลดใหม่ (upload ไฟล์) ให้ reset ไปวันล่าสุด
   React.useEffect(() => {
     setSelectedKey(defaultKey);
   }, [defaultKey]);
 
-  // หา sorted list ของวันที่มีข้อมูลทั้งหมด
+  // หา sorted list ของวันที่มีข้อมูล (sorted ascending)
   const availableKeys = React.useMemo(() => {
     const allKeys = new Set([
       ...depositRecords.map((r) => r.dateKey),
       ...bonusRecords.map((r) => r.dateKey),
     ]);
-    return [...allKeys].sort();
+    return [...allKeys].sort((a, b) =>
+      dateKeyToInputValue(a) < dateKeyToInputValue(b) ? -1 : 1
+    );
   }, [depositRecords, bonusRecords]);
 
   const currentIdx = availableKeys.indexOf(selectedKey);
@@ -108,8 +121,20 @@ export function KpiCards() {
     if (currentIdx < availableKeys.length - 1) setSelectedKey(availableKeys[currentIdx + 1]);
   };
 
+  // min/max สำหรับ date input (format YYYY-MM-DD)
+  const minInputVal = availableKeys.length > 0 ? dateKeyToInputValue(availableKeys[0]) : undefined;
+  const maxInputVal =
+    availableKeys.length > 0 ? dateKeyToInputValue(availableKeys[availableKeys.length - 1]) : undefined;
+
   const dashboard = React.useMemo(
-    () => calculateDashboard(depositRecords, bonusRecords, today.getFullYear(), today.getMonth() + 1, selectedKey),
+    () =>
+      calculateDashboard(
+        depositRecords,
+        bonusRecords,
+        today.getFullYear(),
+        today.getMonth() + 1,
+        selectedKey // ← "DD/MM/YYYY" ตรงกับ key ในระบบ
+      ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [depositRecords, bonusRecords, selectedKey]
   );
@@ -138,20 +163,18 @@ export function KpiCards() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            {/* Native date input */}
-            <div className="relative">
-              <input
-                type="date"
-                id="kpi-date-picker"
-                value={selectedKey}
-                min={availableKeys[0]}
-                max={availableKeys[availableKeys.length - 1]}
-                onChange={(e) => {
-                  if (e.target.value) setSelectedKey(e.target.value);
-                }}
-                className="h-8 rounded-md border border-border bg-background px-2 py-1 text-sm text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
+            {/* Date input — ใช้ YYYY-MM-DD สำหรับ input, แต่ state เก็บ DD/MM/YYYY */}
+            <input
+              type="date"
+              id="kpi-date-picker"
+              value={dateKeyToInputValue(selectedKey)}
+              min={minInputVal}
+              max={maxInputVal}
+              onChange={(e) => {
+                if (e.target.value) setSelectedKey(inputValueToDateKey(e.target.value));
+              }}
+              className="h-8 rounded-md border border-border bg-background px-2 py-1 text-sm text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
 
             <Button
               variant="ghost"
@@ -181,17 +204,12 @@ export function KpiCards() {
                 วันล่าสุด
               </span>
             )}
-            {!isToday && !isLatest && (
-              <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border">
-                {formatDateDisplay(selectedKey)}
-              </span>
-            )}
           </div>
         )}
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <KpiCard
           label="ยอดฝาก C2C วันนี้"
           value={`฿${formatCurrency(dashboard.todayC2CDeposit)}`}
@@ -203,6 +221,16 @@ export function KpiCards() {
           value={`฿${formatCurrency(dashboard.todayTotalDeposit)}`}
           icon={Banknote}
           tone="muted"
+        />
+        <KpiCard
+          label="% C2C ต่อยอดฝากรวม"
+          value={formatPercent(
+            dashboard.todayTotalDeposit > 0
+              ? (dashboard.todayC2CDeposit / dashboard.todayTotalDeposit) * 100
+              : 0
+          )}
+          icon={Percent}
+          tone="primary"
         />
         <KpiCard
           label="โบนัส C2C วันนี้"
