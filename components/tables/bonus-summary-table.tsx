@@ -5,7 +5,7 @@ import type { MonthlyBonusSummary } from "@/types";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { formatThaiMonthYear } from "@/lib/thai-date";
 import { useC2CData } from "@/hooks/use-c2c-data";
-import { Trash2 } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function BonusSummaryTable({
@@ -28,7 +28,7 @@ export function BonusSummaryTable({
         <p className="text-xs text-accent-foreground/80">เดือน{formatThaiMonthYear(summary.year, summary.month)}</p>
       </div>
 
-      <div className="max-h-[560px] overflow-auto scrollbar-thin">
+      <div className="max-h-[560px] overflow-auto scrollbar-none">
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-secondary">
             <TableRow>
@@ -60,14 +60,14 @@ export function BonusSummaryTable({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        className="h-7 w-7 text-muted-foreground hover:bg-muted hover:text-foreground"
                         onClick={() => {
                           if (confirm(`คุณต้องการลบข้อมูลประจำวันที่ ${d.dateKey} ใช่หรือไม่?`)) {
                             deleteDayData(d.dateKey);
                           }
                         }}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     )}
                   </TableCell>

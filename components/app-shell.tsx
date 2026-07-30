@@ -77,25 +77,6 @@ export function AppShell() {
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
         <KpiCards />
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <UploadDropzone
-            title="Upload Excel ยอดฝาก"
-            description="ไฟล์รายงานยอดฝาก (Timestamp, Bank, ยอดเติมเข้า AG)"
-            accentColor="primary"
-            isLoading={isParsingDeposit}
-            meta={depositMeta}
-            onFile={uploadDepositFile}
-          />
-          <UploadDropzone
-            title="Upload Excel โบนัส"
-            description="ไฟล์รายงานโบนัส (Timestamp, ยอดเงิน, หมายเหตุ)"
-            accentColor="accent"
-            isLoading={isParsingBonus}
-            meta={bonusMeta}
-            onFile={uploadBonusFile}
-          />
-        </div>
-
         <Tabs defaultValue="dashboard">
           <TabsList>
             <TabsTrigger value="dashboard" className="gap-1.5">
@@ -122,6 +103,25 @@ export function AppShell() {
             <BonusTab />
           </TabsContent>
         </Tabs>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <UploadDropzone
+            title="Upload Excel ยอดฝาก"
+            description="ไฟล์รายงานยอดฝาก (Timestamp, Bank, ยอดเติมเข้า AG)"
+            accentColor="primary"
+            isLoading={isParsingDeposit}
+            meta={depositMeta}
+            onFile={uploadDepositFile}
+          />
+          <UploadDropzone
+            title="Upload Excel โบนัส"
+            description="ไฟล์รายงานโบนัส (Timestamp, ยอดเงิน, หมายเหตุ)"
+            accentColor="accent"
+            isLoading={isParsingBonus}
+            meta={bonusMeta}
+            onFile={uploadBonusFile}
+          />
+        </div>
       </main>
 
       <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
