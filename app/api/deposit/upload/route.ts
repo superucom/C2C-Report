@@ -1,89 +1,67 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import type { DailyDepositSummaryRecord } from "@/types";
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<Record<string, string>> }
-) {
+export async function POST(request: Request) {
   try {
-    const { dateKey } = await params;
-
-    if (!dateKey) {
-      return NextResponse.json({ error: "Missing dateKey" }, { status: 400 });
-    }
-
     const body = await request.json();
-    const { totalDeposit } = body;
+    const { summaries, meta } = body;
 
-    if (typeof totalDeposit !== "number" || isNaN(totalDeposit) || totalDeposit < 0) {
-      return NextResponse.json({ error: "Invalid totalDeposit value" }, { status: 400 });
+    if (!Array.isArray(summaries) || !meta) {
+      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
     }
 
-    // ตรวจสอบว่า record มีอยู่จริง
-    const existing = await prisma.dailyDepositSummary.findUnique({
-      where: { dateKey },
-    });
+    const items = summaries as DailyDepositSummaryRecord[];
 
-    if (!existing) {
-      return NextResponse.json(
-        { error: `ไม่พบข้อมูลประจำวันที่ ${dateKey}` },
-        { status: 404 }
-      );
-    }
-
-    // อัปเดต totalDeposit
-    const updated = await prisma.dailyDepositSummary.update({
-      where: { dateKey },
-      data: { totalDeposit },
-    });
-
-    return NextResponse.json({ success: true, record: updated });
-  } catch (error) {
-    console.error("Error updating totalDeposit:", error);
-    return NextResponse.json(
-      { error: "ไม่สามารถอัปเดตยอดฝากรวมได้" },
-      { status: 500 }
+    // Upsert each daily summary
+    await prisma.$transaction(
+      items.map((item) =>
+        prisma.dailyDepositSummary.upsert({
+          where: { dateKey: item.dateKey },
+          update: {
+            c2cDeposit: item.c2cDeposit,
+            totalDeposit: item.totalDeposit,
+          },
+          create: {
+            dateKey: item.dateKey,
+            c2cDeposit: item.c2cDeposit,
+            totalDeposit: item.totalDeposit,
+          },
+        })
+      )
     );
-  }
-}
 
-  try {
-    const { dateKey } = await params;
+    // Get final count of daily summary records
+    const totalDaysCount = await prisma.dailyDepositSummary.count();
 
-    if (!dateKey) {
-      return NextResponse.json({ error: "Missing dateKey" }, { status: 400 });
-    }
-
-    const body = await request.json();
-    const { totalDeposit } = body;
-
-    if (typeof totalDeposit !== "number" || isNaN(totalDeposit) || totalDeposit < 0) {
-      return NextResponse.json({ error: "Invalid totalDeposit value" }, { status: 400 });
-    }
-
-    // ตรวจสอบว่า record มีอยู่จริง
-    const existing = await prisma.dailyDepositSummary.findUnique({
-      where: { dateKey },
+    // Upsert metadata
+    await prisma.fileMeta.upsert({
+      where: { type: "deposit" },
+      update: {
+        fileName: meta.fileName,
+        rowCount: meta.rowCount || totalDaysCount,
+        uploadedAt: new Date(meta.uploadedAt),
+      },
+      create: {
+        type: "deposit",
+        fileName: meta.fileName,
+        rowCount: meta.rowCount || totalDaysCount,
+        uploadedAt: new Date(meta.uploadedAt),
+      },
     });
 
-    if (!existing) {
-      return NextResponse.json(
-        { error: `ไม่พบข้อมูลประจำวันที่ ${dateKey}` },
-        { status: 404 }
-      );
+    return NextResponse.json({ success: true, count: totalDaysCount });
+  } catch (error: unknown) {
+    console.error("Error uploading deposit data:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    let userMsg = "ไม่สามารถบันทึกข้อมูลลงฐานข้อมูลได้";
+    if (msg.includes("YOUR-PROJECT-REF") || msg.includes("Can't reach database server")) {
+      userMsg = "กรุณาใส่ DATABASE_URL จริงจาก Supabase ในไฟล์ .env";
+    } else if (msg.includes("does not exist")) {
+      userMsg = "ยังไม่ได้สร้างตารางในฐานข้อมูล กรุณารันคำสั่ง npx prisma db push";
     }
-
-    // อัปเดต totalDeposit
-    const updated = await prisma.dailyDepositSummary.update({
-      where: { dateKey },
-      data: { totalDeposit },
-    });
-
-    return NextResponse.json({ success: true, record: updated });
-  } catch (error) {
-    console.error("Error updating totalDeposit:", error);
     return NextResponse.json(
-      { error: "ไม่สามารถอัปเดตยอดฝากรวมได้" },
+      { error: userMsg },
       { status: 500 }
     );
   }
