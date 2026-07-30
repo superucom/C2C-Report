@@ -15,6 +15,7 @@ interface C2CDataContextValue {
   uploadDepositFile: (file: File) => Promise<void>;
   uploadBonusFile: (file: File) => Promise<void>;
   deleteDayData: (dateKey: string) => Promise<void>;
+  updateDayTotalDeposit: (dateKey: string, totalDeposit: number) => Promise<void>;
 }
 
 const C2CDataContext = React.createContext<C2CDataContextValue | null>(null);
@@ -146,6 +147,30 @@ export function C2CDataProvider({ children }: { children: React.ReactNode }) {
     }
   }, [refreshAllData]);
 
+  const updateDayTotalDeposit = React.useCallback(async (dateKey: string, totalDeposit: number) => {
+    try {
+      const res = await fetch(`/api/deposit/${encodeURIComponent(dateKey)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ totalDeposit }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || "ไม่สามารถอัปเดตยอดฝากรวมได้");
+      }
+
+      // Refresh all data so dashboard + KPI cards sync automatically
+      await refreshAllData();
+
+      toast.success(`อัปเดตยอดฝากรวมวันที่ ${dateKey} เรียบร้อยแล้ว`);
+    } catch (err: unknown) {
+      console.error(err);
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error("ไม่สามารถอัปเดตยอดฝากรวมได้", { description: msg });
+    }
+  }, [refreshAllData]);
+
   const deleteDayData = React.useCallback(async (dateKey: string) => {
     try {
       const res = await fetch(`/api/c2c-data?dateKey=${encodeURIComponent(dateKey)}`, {
@@ -182,6 +207,7 @@ export function C2CDataProvider({ children }: { children: React.ReactNode }) {
     uploadDepositFile,
     uploadBonusFile,
     deleteDayData,
+    updateDayTotalDeposit,
   };
 
   return <C2CDataContext.Provider value={value}>{children}</C2CDataContext.Provider>;
