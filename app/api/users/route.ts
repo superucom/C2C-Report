@@ -2,6 +2,27 @@ import { NextResponse } from "next/server";
 import { getCurrentUser, hashPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+export async function GET() {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) return NextResponse.json({ error: "กรุณาเข้าสู่ระบบ" }, { status: 401 });
+    if (currentUser.role !== "SUPER") {
+      return NextResponse.json({ error: "เฉพาะ Super เท่านั้นที่สามารถดูบัญชี Head ได้" }, { status: 403 });
+    }
+
+    const users = await prisma.user.findMany({
+      where: { role: "HEAD" },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, username: true, role: true, isActive: true, createdAt: true, updatedAt: true },
+    });
+
+    return NextResponse.json({ users });
+  } catch (error) {
+    console.error("Error listing users:", error);
+    return NextResponse.json({ error: "ไม่สามารถโหลดรายการบัญชีได้" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const currentUser = await getCurrentUser();

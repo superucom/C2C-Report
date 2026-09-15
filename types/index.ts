@@ -6,6 +6,15 @@ export interface AuthUser {
   role: UserRole;
 }
 
+export interface ManagedHeadUser {
+  id: string;
+  username: string;
+  role: "HEAD";
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /** Aggregated daily deposit record stored in database. */
 export interface DailyDepositSummaryRecord {
   dateKey: string;

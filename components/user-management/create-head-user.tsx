@@ -4,7 +4,7 @@ import * as React from "react";
 import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
-export function CreateHeadUser() {
+export function CreateHeadUser({ onCreated }: { onCreated?: () => void }) {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
@@ -32,6 +32,7 @@ export function CreateHeadUser() {
       setUsername("");
       setPassword("");
       setConfirmPassword("");
+      onCreated?.();
       toast.success(`สร้าง Username ${data.user.username} สำหรับ Head เรียบร้อยแล้ว`);
     } catch (error) {
       console.error("Create Head user failed:", error);

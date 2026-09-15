@@ -88,3 +88,10 @@ export async function revokeCurrentSession() {
 
   cookieStore.delete(SESSION_COOKIE_NAME);
 }
+
+export async function revokeAllUserSessions(userId: string) {
+  await prisma.session.updateMany({
+    where: { userId, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+}

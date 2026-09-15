@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, LayoutDashboard, Loader2, LogOut, UserCheck, Users, Wallet } from "lucide-react";
+import { BarChart3, KeyRound, LayoutDashboard, Loader2, LogOut, UserCheck, Users, Wallet } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { KpiCards } from "@/components/dashboard/kpi-cards";
@@ -11,7 +11,8 @@ import { BonusTab } from "@/components/dashboard/bonus-tab";
 import { useC2CData } from "@/hooks/use-c2c-data";
 import { useAuth } from "@/hooks/use-auth";
 import { LoginCard } from "@/components/login-card";
-import { CreateHeadUser } from "@/components/user-management/create-head-user";
+import { AccountTab } from "@/components/account/account-tab";
+import { ManageHeadUsers } from "@/components/user-management/manage-head-users";
 
 export function AppShell() {
   const { user, isAuthenticated, isLoading: isAuthLoading, logout } = useAuth();
@@ -92,6 +93,10 @@ export function AppShell() {
               <BarChart3 className="h-3.5 w-3.5" />
               สรุปยอดโบนัส
             </TabsTrigger>
+            <TabsTrigger value="account" className="gap-1.5">
+              <KeyRound className="h-3.5 w-3.5" />
+              บัญชีของฉัน
+            </TabsTrigger>
             {user?.role === "SUPER" && (
               <TabsTrigger value="accounts" className="gap-1.5">
                 <Users className="h-3.5 w-3.5" />
@@ -109,9 +114,12 @@ export function AppShell() {
           <TabsContent value="bonus">
             <BonusTab />
           </TabsContent>
+          <TabsContent value="account">
+            <AccountTab />
+          </TabsContent>
           {user?.role === "SUPER" && (
             <TabsContent value="accounts">
-              <CreateHeadUser />
+              <ManageHeadUsers />
             </TabsContent>
           )}
         </Tabs>
