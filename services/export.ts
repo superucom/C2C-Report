@@ -102,19 +102,15 @@ export async function exportElementToPDF(element: HTMLElement, filename: string)
 }
 
 export async function exportElementToJPG(element: HTMLElement, filename: string) {
-  const { default: html2canvas } = await import("html2canvas");
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    backgroundColor: getComputedStyle(document.body).getPropertyValue("--background") || "#ffffff",
-    useCORS: true,
-    ignoreElements: (node) => node.hasAttribute("data-html2canvas-ignore"),
+  const { toJpeg } = await import("html-to-image");
+  const isDark = document.documentElement.classList.contains("dark");
+  const dataUrl = await toJpeg(element, {
+    quality: 0.92,
+    pixelRatio: 2,
+    backgroundColor: isDark ? "#151821" : "#f7f9fb",
+    filter: (node) => !(node instanceof HTMLElement && node.hasAttribute("data-html2canvas-ignore")),
   });
-
-  const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob(resolve, "image/jpeg", 0.92);
-  });
-
-  if (!blob) throw new Error("ไม่สามารถสร้างไฟล์ JPG ได้");
+  const blob = await fetch(dataUrl).then((response) => response.blob());
   saveAs(blob, filename);
 }
 
