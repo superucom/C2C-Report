@@ -8,6 +8,35 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum UserRole {
+  SUPER
+  HEAD
+}
+
+model User {
+  id           String      @id @default(cuid())
+  username     String      @unique
+  passwordHash String
+  role         UserRole    @default(HEAD)
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  sessions     Session[]
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
 model DailyDepositSummary {
   dateKey      String   @id // "YYYY-MM-DD"
   c2cDeposit   Float

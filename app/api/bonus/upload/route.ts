@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { DailyBonusSummaryRecord } from "@/types";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
+    if (!(await getCurrentUser())) {
+      return NextResponse.json({ error: "กรุณาเข้าสู่ระบบ" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { summaries, meta } = body;
 

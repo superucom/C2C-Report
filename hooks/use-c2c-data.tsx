@@ -4,6 +4,7 @@ import * as React from "react";
 import { toast } from "sonner";
 import type { DailyBonusSummaryRecord, DailyDepositSummaryRecord, ParsedFileMeta } from "@/types";
 import { parseBonusExcel, parseDepositExcel } from "@/services/excel-parser";
+import { useAuth } from "@/hooks/use-auth";
 
 interface C2CDataContextValue {
   depositRecords: DailyDepositSummaryRecord[];
@@ -21,6 +22,7 @@ interface C2CDataContextValue {
 const C2CDataContext = React.createContext<C2CDataContextValue | null>(null);
 
 export function C2CDataProvider({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
   const [depositSummaries, setDepositSummaries] = React.useState<DailyDepositSummaryRecord[]>([]);
   const [bonusSummaries, setBonusSummaries] = React.useState<DailyBonusSummaryRecord[]>([]);
   const [depositMeta, setDepositMeta] = React.useState<ParsedFileMeta | null>(null);
@@ -30,6 +32,8 @@ export function C2CDataProvider({ children }: { children: React.ReactNode }) {
 
   // Helper to fetch all C2C data and update state
   const refreshAllData = React.useCallback(async () => {
+    if (!isAuthenticated) return;
+
     try {
       const res = await fetch("/api/c2c-data");
       if (res.ok) {
@@ -58,12 +62,19 @@ export function C2CDataProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.error("Failed to refresh C2C data:", err);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   // Load data from database on mount
   React.useEffect(() => {
-    refreshAllData();
-  }, [refreshAllData]);
+    if (isAuthenticated) {
+      refreshAllData();
+    } else {
+      setDepositSummaries([]);
+      setBonusSummaries([]);
+      setDepositMeta(null);
+      setBonusMeta(null);
+    }
+  }, [isAuthenticated, refreshAllData]);
 
   const uploadDepositFile = React.useCallback(async (file: File) => {
     setIsParsingDeposit(true);

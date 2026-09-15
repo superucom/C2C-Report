@@ -1,35 +1,29 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-
-const AUTH_USER = "Superucom";
-const AUTH_PASS = "Company789+";
-const SESSION_COOKIE_NAME = "c2c_session";
+import { prisma } from "@/lib/prisma";
+import { createSession, verifyPassword } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { username, password } = body;
+    const username = typeof body.username === "string" ? body.username.trim() : "";
+    const password = typeof body.password === "string" ? body.password : "";
 
-    if (username !== AUTH_USER || password !== AUTH_PASS) {
+    const user = username
+      ? await prisma.user.findUnique({ where: { username } })
+      : null;
+
+    if (!user || !user.isActive || !verifyPassword(password, user.passwordHash)) {
       return NextResponse.json(
         { error: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" },
         { status: 401 }
       );
     }
 
-    // Set secure HTTP-Only cookie
-    const cookieStore = await cookies();
-    cookieStore.set(SESSION_COOKIE_NAME, JSON.stringify({ username: AUTH_USER }), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: "/",
-    });
+    await createSession(user.id);
 
     return NextResponse.json({
       success: true,
-      user: { username: AUTH_USER },
+      user: { id: user.id, username: user.username, role: user.role },
     });
   } catch (error) {
     console.error("Login error:", error);

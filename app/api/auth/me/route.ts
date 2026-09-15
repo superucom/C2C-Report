@@ -1,27 +1,15 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-
-const SESSION_COOKIE_NAME = "c2c_session";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME);
+    const user = await getCurrentUser();
 
-    if (!sessionCookie || !sessionCookie.value) {
+    if (!user) {
       return NextResponse.json({ authenticated: false, user: null });
     }
 
-    try {
-      const data = JSON.parse(sessionCookie.value);
-      if (data && data.username === "Superucom") {
-        return NextResponse.json({ authenticated: true, user: { username: "Superucom" } });
-      }
-    } catch {
-      // Invalid cookie format
-    }
-
-    return NextResponse.json({ authenticated: false, user: null });
+    return NextResponse.json({ authenticated: true, user });
   } catch (error) {
     console.error("Auth status check error:", error);
     return NextResponse.json({ authenticated: false, user: null });

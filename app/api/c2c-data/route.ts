@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
   try {
+    if (!(await getCurrentUser())) {
+      return NextResponse.json({ error: "กรุณาเข้าสู่ระบบ" }, { status: 401 });
+    }
+
     const [depositSummaries, bonusSummaries, metas] = await Promise.all([
       prisma.dailyDepositSummary.findMany({
         orderBy: { dateKey: "asc" },
@@ -24,17 +29,16 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Error fetching C2C data:", error);
-    return NextResponse.json({
-      depositSummaries: [],
-      bonusSummaries: [],
-      depositMeta: null,
-      bonusMeta: null,
-    });
+    return NextResponse.json({ error: "ไม่สามารถโหลดข้อมูล C2C ได้" }, { status: 500 });
   }
 }
 
 export async function DELETE(request: Request) {
   try {
+    if (!(await getCurrentUser())) {
+      return NextResponse.json({ error: "กรุณาเข้าสู่ระบบ" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const dateKey = searchParams.get("dateKey");
 

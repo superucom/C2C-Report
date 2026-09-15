@@ -1,3 +1,11 @@
+export type UserRole = "SUPER" | "HEAD";
+
+export interface AuthUser {
+  id: string;
+  username: string;
+  role: UserRole;
+}
+
 /** Aggregated daily deposit record stored in database. */
 export interface DailyDepositSummaryRecord {
   dateKey: string;
@@ -107,5 +115,5 @@ export interface ValidationError {
 }
 
 export type ParseResult<T> =
-  | { ok: true; records: T[]; summaries: any[]; meta: ParsedFileMeta }
+  | { ok: true; records: T[]; summaries: unknown[]; meta: ParsedFileMeta }
   | { ok: false; error: ValidationError };

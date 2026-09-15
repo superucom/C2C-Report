@@ -11,6 +11,7 @@ import { BonusTab } from "@/components/dashboard/bonus-tab";
 import { useC2CData } from "@/hooks/use-c2c-data";
 import { useAuth } from "@/hooks/use-auth";
 import { LoginCard } from "@/components/login-card";
+import { CreateHeadUser } from "@/components/user-management/create-head-user";
 
 export function AppShell() {
   const { user, isAuthenticated, isLoading: isAuthLoading, logout } = useAuth();
@@ -56,7 +57,7 @@ export function AppShell() {
             {/* User Profile Badge */}
             <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-border/80 bg-muted/50 px-3 py-1 text-xs font-medium text-foreground">
               <UserCheck className="h-3.5 w-3.5 text-primary" />
-              <span>{user?.username}</span>
+              <span>{user?.username} · {user?.role === "SUPER" ? "Super" : "Head"}</span>
             </div>
 
             <ThemeToggle />
@@ -75,6 +76,8 @@ export function AppShell() {
       </header>
 
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
+        {user?.role === "SUPER" && <CreateHeadUser />}
+
         <KpiCards />
 
         <Tabs defaultValue="dashboard">

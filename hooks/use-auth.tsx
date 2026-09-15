@@ -2,13 +2,10 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { toast } from "sonner";
-
-interface User {
-  username: string;
-}
+import type { AuthUser } from "@/types";
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<boolean>;
@@ -18,7 +15,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Check auth session on mount
