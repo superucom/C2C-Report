@@ -107,9 +107,11 @@ function EditableTotalDepositCell({
 export function DepositSummaryTable({
   summary,
   searchQuery = "",
+  exportMode = false,
 }: {
   summary: MonthlyDepositSummary;
   searchQuery?: string;
+  exportMode?: boolean;
 }) {
   const { deleteDayData, updateDayTotalDeposit } = useC2CData();
   const hasAnyData = summary.days.some((d) => d.totalDeposit > 0 || d.c2cDeposit > 0);
@@ -124,7 +126,7 @@ export function DepositSummaryTable({
         <p className="text-xs text-primary-foreground/80">เดือน{formatThaiMonthYear(summary.year, summary.month)}</p>
       </div>
 
-      <div className="max-h-[560px] overflow-auto scrollbar-none">
+      <div className={exportMode ? "overflow-visible scrollbar-none" : "max-h-[560px] overflow-auto scrollbar-none"}>
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-secondary">
             <TableRow>

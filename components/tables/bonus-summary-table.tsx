@@ -11,9 +11,11 @@ import { Button } from "@/components/ui/button";
 export function BonusSummaryTable({
   summary,
   searchQuery = "",
+  exportMode = false,
 }: {
   summary: MonthlyBonusSummary;
   searchQuery?: string;
+  exportMode?: boolean;
 }) {
   const { deleteDayData } = useC2CData();
   const hasAnyData = summary.days.some((d) => d.c2cDeposit > 0 || d.bonusAmount > 0);
@@ -28,7 +30,7 @@ export function BonusSummaryTable({
         <p className="text-xs text-accent-foreground/80">เดือน{formatThaiMonthYear(summary.year, summary.month)}</p>
       </div>
 
-      <div className="max-h-[560px] overflow-auto scrollbar-none">
+      <div className={exportMode ? "overflow-visible scrollbar-none" : "max-h-[560px] overflow-auto scrollbar-none"}>
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-secondary">
             <TableRow>

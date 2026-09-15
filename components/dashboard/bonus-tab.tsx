@@ -17,6 +17,8 @@ export function BonusTab() {
   const [month, setMonth] = React.useState(now.getMonth() + 1);
   const [search, setSearch] = React.useState("");
   const tablesRef = React.useRef<HTMLDivElement>(null);
+  const currentTableRef = React.useRef<HTMLDivElement>(null);
+  const [isExportingJpg, setIsExportingJpg] = React.useState(false);
 
   const prev = shiftMonth(year, month, -1);
 
@@ -39,12 +41,27 @@ export function BonusTab() {
   };
 
   const handleExportJPG = async () => {
-    if (!tablesRef.current) return;
-    toast.promise(exportElementToJPG(tablesRef.current, `สรุปยอดโบนัส-C2C.jpg`), {
+    if (!currentTableRef.current) return;
+    setIsExportingJpg(true);
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    });
+    const exportPromise = exportElementToJPG(
+      currentTableRef.current,
+      `สรุปยอดโบนัส-C2C-${year}-${String(month).padStart(2, "0")}.jpg`
+    );
+    toast.promise(exportPromise, {
       loading: "กำลังสร้าง JPG...",
       success: "ดาวน์โหลด JPG สำเร็จ",
       error: "สร้าง JPG ไม่สำเร็จ",
     });
+    try {
+      await exportPromise;
+    } catch {
+      // toast.promise already reports the export failure to the user.
+    } finally {
+      setIsExportingJpg(false);
+    }
   };
 
   return (
@@ -76,7 +93,9 @@ export function BonusTab() {
 
       <div ref={tablesRef} className="dashboard-enter grid grid-cols-1 gap-4 bg-background lg:grid-cols-2" style={{ "--dashboard-delay": "160ms" } as React.CSSProperties}>
         <BonusSummaryTable summary={prevSummary} searchQuery={search} />
-        <BonusSummaryTable summary={currentSummary} searchQuery={search} />
+        <div ref={currentTableRef} className="min-w-0">
+          <BonusSummaryTable summary={currentSummary} searchQuery={search} exportMode={isExportingJpg} />
+        </div>
       </div>
     </div>
   );
