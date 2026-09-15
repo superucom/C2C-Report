@@ -34,7 +34,7 @@ function KpiCard({
     <Card
       className={cn(
         "dashboard-enter group relative overflow-hidden border-border/80 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
-        hero && "dashboard-sheen border-primary bg-primary text-primary-foreground shadow-[0_18px_40px_color-mix(in_oklch,var(--primary)_20%,transparent)] xl:col-span-2",
+        hero && "dashboard-sheen border-primary bg-primary text-primary-foreground shadow-[0_18px_40px_color-mix(in_oklch,var(--primary)_20%,transparent)]",
         !hero && "bg-card/90"
       )}
       style={{ "--dashboard-delay": `${delay}ms` } as React.CSSProperties}
@@ -47,7 +47,7 @@ function KpiCard({
         </div>
       </CardHeader>
       <CardContent className="relative">
-        <p className={cn("tabular-nums tracking-tight", hero ? "text-3xl font-bold sm:text-4xl" : "text-2xl font-bold")}>{value}</p>
+        <p className="text-2xl font-bold tabular-nums tracking-tight">{value}</p>
         {hero && <p className="mt-2 text-xs text-primary-foreground/70">ยอดฝากจากข้อมูลประจำวันที่เลือก</p>}
       </CardContent>
     </Card>
@@ -231,7 +231,7 @@ export function KpiCards() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <KpiCard
           label="ยอดฝาก C2C วันนี้"
           value={`฿${formatCurrency(dashboard.todayC2CDeposit)}`}
