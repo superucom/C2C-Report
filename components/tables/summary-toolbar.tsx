@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Download, FileDown, FileSpreadsheet, Search } from "lucide-react";
+import { Download, FileDown, FileImage, FileSpreadsheet, Search } from "lucide-react";
 import { MonthPicker } from "@/components/month-picker";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,7 @@ interface SummaryToolbarProps {
   onSearchChange: (q: string) => void;
   onExportExcel: () => void;
   onExportPDF: () => void;
+  onExportJPG: () => void;
 }
 
 export function SummaryToolbar({
@@ -29,6 +30,7 @@ export function SummaryToolbar({
   onSearchChange,
   onExportExcel,
   onExportPDF,
+  onExportJPG,
 }: SummaryToolbarProps) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -60,6 +62,10 @@ export function SummaryToolbar({
             <DropdownMenuItem onClick={onExportPDF}>
               <FileDown className="h-4 w-4" />
               Export PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onExportJPG}>
+              <FileImage className="h-4 w-4" />
+              Export JPG
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

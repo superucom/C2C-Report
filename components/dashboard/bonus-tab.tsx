@@ -6,7 +6,7 @@ import { calculateBonusSummary } from "@/lib/calculations";
 import { shiftMonth } from "@/lib/thai-date";
 import { BonusSummaryTable } from "@/components/tables/bonus-summary-table";
 import { SummaryToolbar } from "@/components/tables/summary-toolbar";
-import { exportBonusExcel, exportElementToPDF } from "@/services/export";
+import { exportBonusExcel, exportElementToJPG, exportElementToPDF } from "@/services/export";
 import { toast } from "sonner";
 import { Gift } from "lucide-react";
 
@@ -38,6 +38,15 @@ export function BonusTab() {
     });
   };
 
+  const handleExportJPG = async () => {
+    if (!tablesRef.current) return;
+    toast.promise(exportElementToJPG(tablesRef.current, `สรุปยอดโบนัส-C2C.jpg`), {
+      loading: "กำลังสร้าง JPG...",
+      success: "ดาวน์โหลด JPG สำเร็จ",
+      error: "สร้าง JPG ไม่สำเร็จ",
+    });
+  };
+
   return (
     <div className="space-y-5">
       <div className="dashboard-enter flex items-start gap-3 rounded-2xl border border-border/80 bg-card/70 p-4 shadow-sm backdrop-blur">
@@ -61,6 +70,7 @@ export function BonusTab() {
         onSearchChange={setSearch}
         onExportExcel={() => exportBonusExcel(currentSummary)}
         onExportPDF={handleExportPDF}
+        onExportJPG={handleExportJPG}
       />
       </div>
 

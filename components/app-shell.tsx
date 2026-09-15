@@ -16,9 +16,12 @@ import { LoginCard } from "@/components/login-card";
 import { AccountTab } from "@/components/account/account-tab";
 import { ManageHeadUsers } from "@/components/user-management/manage-head-users";
 import { AppSidebar } from "@/components/navigation/app-sidebar";
+import { exportElementToJPG } from "@/services/export";
+import { toast } from "sonner";
 
 export function AppShell() {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const dashboardExportRef = React.useRef<HTMLDivElement>(null);
   const { user, isAuthenticated, isLoading: isAuthLoading, logout } = useAuth();
   const {
     depositMeta,
@@ -43,6 +46,15 @@ export function AppShell() {
   if (!isAuthenticated) {
     return <LoginCard />;
   }
+
+  const handleExportDashboardJPG = () => {
+    if (!dashboardExportRef.current) return;
+    toast.promise(exportElementToJPG(dashboardExportRef.current, `dashboard-c2c-${new Date().toISOString().slice(0, 10)}.jpg`), {
+      loading: "กำลังสร้าง JPG Dashboard...",
+      success: "ดาวน์โหลด JPG Dashboard สำเร็จ",
+      error: "สร้าง JPG Dashboard ไม่สำเร็จ",
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -91,26 +103,28 @@ export function AppShell() {
           <main className="relative min-w-0 flex-1 overflow-hidden px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
             <div className="pointer-events-none absolute -right-40 -top-32 h-96 w-96 rounded-full bg-primary/5 blur-3xl" aria-hidden="true" />
             <div className="pointer-events-none absolute -left-48 top-[32rem] h-96 w-96 rounded-full bg-accent/5 blur-3xl" aria-hidden="true" />
-            <div className="relative mx-auto max-w-7xl space-y-7">
-              <KpiCards />
+            <div className="relative mx-auto max-w-7xl">
+              <div ref={dashboardExportRef} className="space-y-7">
+                <KpiCards />
 
-              <TabsContent value="dashboard">
-                <DashboardTab />
-              </TabsContent>
-              <TabsContent value="deposit">
-                <DepositTab />
-              </TabsContent>
-              <TabsContent value="bonus">
-                <BonusTab />
-              </TabsContent>
-              <TabsContent value="account">
-                <AccountTab />
-              </TabsContent>
-              {user?.role === "SUPER" && (
-                <TabsContent value="accounts">
-                  <ManageHeadUsers />
+                <TabsContent value="dashboard">
+                  <DashboardTab onExportJpg={handleExportDashboardJPG} />
                 </TabsContent>
-              )}
+                <TabsContent value="deposit">
+                  <DepositTab />
+                </TabsContent>
+                <TabsContent value="bonus">
+                  <BonusTab />
+                </TabsContent>
+                <TabsContent value="account">
+                  <AccountTab />
+                </TabsContent>
+                {user?.role === "SUPER" && (
+                  <TabsContent value="accounts">
+                    <ManageHeadUsers />
+                  </TabsContent>
+                )}
+              </div>
 
               <section className="dashboard-enter space-y-3" style={{ "--dashboard-delay": "260ms" } as CSSProperties}>
                 <div className="flex items-center gap-3 px-1">

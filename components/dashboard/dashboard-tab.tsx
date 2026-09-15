@@ -11,6 +11,8 @@ import { useC2CData } from "@/hooks/use-c2c-data";
 import { calculateDashboardByDateRange } from "@/lib/calculations";
 import { toDateKey } from "@/lib/parse-helpers";
 import { formatCurrency, formatPercent } from "@/lib/utils";
+import { ImageDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 function getInitialDates() {
   const now = new Date();
@@ -28,7 +30,7 @@ function getInitialDates() {
   };
 }
 
-export function DashboardTab() {
+export function DashboardTab({ onExportJpg }: { onExportJpg?: () => void }) {
   const { depositRecords, bonusRecords } = useC2CData();
   const initial = React.useMemo(() => getInitialDates(), []);
   const [startDateStr, setStartDateStr] = React.useState(initial.startStr);
@@ -67,14 +69,22 @@ export function DashboardTab() {
           <h2 className="text-base font-semibold tracking-tight">แนวโน้มผลการดำเนินงาน</h2>
           <p className="mt-1 text-xs text-muted-foreground">ข้อมูลช่วงวันที่ {formatDisplayDate(startDateStr)} ถึง {formatDisplayDate(endDateStr)}</p>
         </div>
-        <DateRangePicker
-          startDate={startDateStr}
-          endDate={endDateStr}
-          onChange={(s, e) => {
-            setStartDateStr(s);
-            setEndDateStr(e);
-          }}
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <DateRangePicker
+            startDate={startDateStr}
+            endDate={endDateStr}
+            onChange={(s, e) => {
+              setStartDateStr(s);
+              setEndDateStr(e);
+            }}
+          />
+          {onExportJpg && (
+            <Button type="button" variant="outline" size="sm" onClick={onExportJpg} data-html2canvas-ignore="true">
+              <ImageDown className="h-3.5 w-3.5" />
+              Export JPG
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* KPI Summary Cards */}

@@ -101,6 +101,23 @@ export async function exportElementToPDF(element: HTMLElement, filename: string)
   pdf.save(filename);
 }
 
+export async function exportElementToJPG(element: HTMLElement, filename: string) {
+  const { default: html2canvas } = await import("html2canvas");
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    backgroundColor: getComputedStyle(document.body).getPropertyValue("--background") || "#ffffff",
+    useCORS: true,
+    ignoreElements: (node) => node.hasAttribute("data-html2canvas-ignore"),
+  });
+
+  const blob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, "image/jpeg", 0.92);
+  });
+
+  if (!blob) throw new Error("ไม่สามารถสร้างไฟล์ JPG ได้");
+  saveAs(blob, filename);
+}
+
 export function downloadBlob(data: BlobPart, filename: string, type: string) {
   const blob = new Blob([data], { type });
   saveAs(blob, filename);
