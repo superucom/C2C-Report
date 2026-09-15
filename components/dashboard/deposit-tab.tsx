@@ -8,6 +8,7 @@ import { DepositSummaryTable } from "@/components/tables/deposit-summary-table";
 import { SummaryToolbar } from "@/components/tables/summary-toolbar";
 import { exportDepositExcel, exportElementToPDF } from "@/services/export";
 import { toast } from "sonner";
+import { ArrowDownToLine } from "lucide-react";
 
 export function DepositTab() {
   const { depositRecords } = useC2CData();
@@ -38,7 +39,17 @@ export function DepositTab() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      <div className="dashboard-enter flex items-start gap-3 rounded-2xl border border-border/80 bg-card/70 p-4 shadow-sm backdrop-blur">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <ArrowDownToLine className="h-5 w-5" />
+        </div>
+        <div>
+          <h2 className="text-base font-semibold tracking-tight">สรุปยอดฝาก C2C</h2>
+          <p className="mt-1 text-xs text-muted-foreground">ตรวจสอบยอดฝากรายวัน เปรียบเทียบเดือน และแก้ไขยอดฝากรวมได้จากตาราง</p>
+        </div>
+      </div>
+      <div className="dashboard-enter rounded-2xl border border-border/80 bg-card/70 p-3 shadow-sm backdrop-blur" style={{ "--dashboard-delay": "100ms" } as React.CSSProperties}>
       <SummaryToolbar
         year={year}
         month={month}
@@ -51,8 +62,9 @@ export function DepositTab() {
         onExportExcel={() => exportDepositExcel(currentSummary)}
         onExportPDF={handleExportPDF}
       />
+      </div>
 
-      <div ref={tablesRef} className="grid grid-cols-1 gap-4 bg-background lg:grid-cols-2">
+      <div ref={tablesRef} className="dashboard-enter grid grid-cols-1 gap-4 bg-background lg:grid-cols-2" style={{ "--dashboard-delay": "160ms" } as React.CSSProperties}>
         <DepositSummaryTable summary={prevSummary} searchQuery={search} />
         <DepositSummaryTable summary={currentSummary} searchQuery={search} />
       </div>

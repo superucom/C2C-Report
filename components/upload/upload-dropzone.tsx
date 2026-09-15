@@ -35,25 +35,29 @@ export function UploadDropzone({ title, description, accentColor, isLoading, met
   return (
     <div
       {...getRootProps()}
+      aria-label={`${title} คลิกเพื่อเลือกไฟล์ Excel หรือวางไฟล์ที่นี่`}
+      aria-busy={isLoading}
       className={cn(
-        "group relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-center transition-colors",
-        isDragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-secondary/40",
+        "group relative flex min-h-44 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed bg-card p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md",
+        isDragActive ? "border-primary bg-primary/8 shadow-[0_12px_30px_color-mix(in_oklch,var(--primary)_12%,transparent)]" : "border-border hover:border-primary/50 hover:bg-secondary/40",
         meta && "border-success/50 bg-success/5"
       )}
     >
       <input {...getInputProps()} />
 
       {isLoading ? (
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Loader2 className="h-6 w-6 animate-spin" /></div>
       ) : meta ? (
-        <CheckCircle2 className="h-8 w-8 text-success" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-success/10 text-success"><CheckCircle2 className="h-6 w-6" /></div>
       ) : (
-        <UploadCloud
-          className={cn(
-            "h-8 w-8 transition-transform group-hover:-translate-y-0.5",
+        <div className={cn("flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:-translate-y-1", accentColor === "primary" ? "bg-primary/10 text-primary" : "bg-accent/20 text-accent-foreground")}>
+          <UploadCloud
+            className={cn(
+            "h-6 w-6",
             accentColor === "primary" ? "text-primary" : "text-accent"
-          )}
-        />
+            )}
+          />
+        </div>
       )}
 
       <p className="text-sm font-semibold">{title}</p>

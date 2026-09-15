@@ -55,12 +55,13 @@ export function DashboardTab() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Date Range Controls */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-sm font-semibold text-muted-foreground">
-          ข้อมูลช่วงวันที่ {formatDisplayDate(startDateStr)} ถึง {formatDisplayDate(endDateStr)}
-        </h2>
+      <div className="dashboard-enter flex flex-col gap-4 rounded-2xl border border-border/80 bg-card/70 p-4 shadow-sm backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-base font-semibold tracking-tight">แนวโน้มผลการดำเนินงาน</h2>
+          <p className="mt-1 text-xs text-muted-foreground">ข้อมูลช่วงวันที่ {formatDisplayDate(startDateStr)} ถึง {formatDisplayDate(endDateStr)}</p>
+        </div>
         <DateRangePicker
           startDate={startDateStr}
           endDate={endDateStr}
@@ -73,7 +74,7 @@ export function DashboardTab() {
 
       {/* KPI Summary Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card className="border-border/80 shadow-sm">
+        <Card className="dashboard-enter border-border/80 bg-card/90 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md" style={{ "--dashboard-delay": "80ms" } as React.CSSProperties}>
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground">ยอดฝากรวมในช่วงที่เลือก</CardTitle>
           </CardHeader>
@@ -81,7 +82,7 @@ export function DashboardTab() {
             <p className="text-xl font-bold tracking-tight tabular-nums">฿{formatCurrency(dashboard.monthlyDepositTotal)}</p>
           </CardContent>
         </Card>
-        <Card className="border-border/80 shadow-sm">
+        <Card className="dashboard-enter border-primary/20 bg-primary/[0.04] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md" style={{ "--dashboard-delay": "130ms" } as React.CSSProperties}>
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground">ยอดฝาก C2C ในช่วงที่เลือก</CardTitle>
           </CardHeader>
@@ -90,7 +91,7 @@ export function DashboardTab() {
             <p className="text-xs text-muted-foreground mt-0.5">{formatPercent(rangePercent)} ของยอดฝากรวม</p>
           </CardContent>
         </Card>
-        <Card className="border-border/80 shadow-sm">
+        <Card className="dashboard-enter border-accent/30 bg-accent/[0.05] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md" style={{ "--dashboard-delay": "180ms" } as React.CSSProperties}>
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground">โบนัส C2C ในช่วงที่เลือก</CardTitle>
           </CardHeader>
@@ -102,7 +103,7 @@ export function DashboardTab() {
 
       {/* Split Daily Charts */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="border-border/80 shadow-sm">
+        <Card className="dashboard-enter border-border/80 bg-card/90 shadow-sm transition-all duration-300 hover:shadow-md" style={{ "--dashboard-delay": "220ms" } as React.CSSProperties}>
           <CardHeader>
             <CardTitle className="text-sm font-bold flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-primary" />
@@ -114,7 +115,7 @@ export function DashboardTab() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/80 shadow-sm">
+        <Card className="dashboard-enter border-border/80 bg-card/90 shadow-sm transition-all duration-300 hover:shadow-md" style={{ "--dashboard-delay": "260ms" } as React.CSSProperties}>
           <CardHeader>
             <CardTitle className="text-sm font-bold flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
@@ -129,7 +130,7 @@ export function DashboardTab() {
 
       {/* Comparative & Share Charts */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="border-border/80 shadow-sm">
+        <Card className="dashboard-enter border-border/80 bg-card/90 shadow-sm transition-all duration-300 hover:shadow-md" style={{ "--dashboard-delay": "300ms" } as React.CSSProperties}>
           <CardHeader>
             <CardTitle className="text-sm font-bold">ยอดฝากรวม เทียบกับ ยอดฝาก C2C</CardTitle>
           </CardHeader>
@@ -138,7 +139,7 @@ export function DashboardTab() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/80 shadow-sm">
+        <Card className="dashboard-enter border-border/80 bg-card/90 shadow-sm transition-all duration-300 hover:shadow-md" style={{ "--dashboard-delay": "340ms" } as React.CSSProperties}>
           <CardHeader>
             <CardTitle className="text-sm font-bold">สัดส่วน C2C กับ Non C2C</CardTitle>
           </CardHeader>

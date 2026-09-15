@@ -34,14 +34,14 @@ export function SummaryToolbar({
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <MonthPicker year={year} month={month} onChange={onMonthChange} />
 
-      <div className="flex flex-1 items-center gap-2 sm:justify-end">
-        <div className="relative w-full max-w-[220px]">
+      <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+        <div className="relative w-full sm:max-w-[260px]">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="ค้นหาวันที่ เช่น 16/07/2026"
-            className="h-9 w-full rounded-md border border-input bg-card pl-8 pr-3 text-sm shadow-sm outline-none focus:ring-2 focus:ring-ring"
+            className="h-9 w-full rounded-lg border border-input bg-background pl-8 pr-3 text-sm shadow-sm outline-none transition-shadow focus:ring-2 focus:ring-ring"
           />
         </div>
 
