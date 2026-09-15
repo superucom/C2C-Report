@@ -40,9 +40,9 @@ function KpiCard({
       style={{ "--dashboard-delay": `${delay}ms` } as React.CSSProperties}
     >
       {hero && <div className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full bg-primary-foreground/10 blur-2xl" aria-hidden="true" />}
-      <CardHeader className="relative flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className={hero ? "text-primary-foreground/75" : ""}>{label}</CardTitle>
-        <div className={cn("flex h-9 w-9 items-center justify-center rounded-xl", hero ? "bg-primary-foreground/15 text-primary-foreground" : toneClasses[tone])}>
+      <CardHeader className="relative flex-row items-start justify-between space-y-0 pb-2">
+        <CardTitle className={cn("whitespace-nowrap pr-1 text-xs leading-tight", hero ? "text-primary-foreground/75" : "")}>{label}</CardTitle>
+        <div className={cn("absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-xl", hero ? "bg-primary-foreground/15 text-primary-foreground" : toneClasses[tone])}>
           <Icon className="h-4 w-4" />
         </div>
       </CardHeader>

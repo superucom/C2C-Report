@@ -2,6 +2,13 @@
 
 import { Calendar } from "lucide-react";
 
+function formatLocalDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 interface DateRangePickerProps {
   startDate: string; // YYYY-MM-DD
   endDate: string;   // YYYY-MM-DD
@@ -14,24 +21,21 @@ export function DateRangePicker({ startDate, endDate, onChange }: DateRangePicke
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    const formatDate = (d: Date) => d.toISOString().split("T")[0];
-    onChange(formatDate(start), formatDate(end));
+    onChange(formatLocalDate(start), formatLocalDate(end));
   };
 
   const setLast7Days = () => {
     const now = new Date();
     const start = new Date(now);
     start.setDate(now.getDate() - 6);
-    const formatDate = (d: Date) => d.toISOString().split("T")[0];
-    onChange(formatDate(start), formatDate(now));
+    onChange(formatLocalDate(start), formatLocalDate(now));
   };
 
   const setLast30Days = () => {
     const now = new Date();
     const start = new Date(now);
     start.setDate(now.getDate() - 29);
-    const formatDate = (d: Date) => d.toISOString().split("T")[0];
-    onChange(formatDate(start), formatDate(now));
+    onChange(formatLocalDate(start), formatLocalDate(now));
   };
 
   return (

@@ -13,9 +13,10 @@ import type { DashboardDailyPoint } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 
 export function DailyBonusChart({ data }: { data: DashboardDailyPoint[] }) {
+  const isMonthlyView = data.length > 20;
   const chartData = data.map((d) => ({
     date: d.dateKey,
-    dayLabel: d.dateKey.slice(0, 5), // DD/MM
+    dayLabel: isMonthlyView ? d.dateKey.slice(0, 2) : d.dateKey.slice(0, 5), // รายเดือนใช้เฉพาะวันที่
     โบนัส: d.bonusAmount,
   }));
 
@@ -31,6 +32,8 @@ export function DailyBonusChart({ data }: { data: DashboardDailyPoint[] }) {
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.6} />
         <XAxis
           dataKey="dayLabel"
+          interval={isMonthlyView ? 2 : 0}
+          minTickGap={isMonthlyView ? 10 : 18}
           tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
           axisLine={{ stroke: "var(--border)" }}
         />
