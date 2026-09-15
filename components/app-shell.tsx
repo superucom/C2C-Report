@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, LayoutDashboard, Loader2, LogOut, UserCheck, Wallet } from "lucide-react";
+import { BarChart3, LayoutDashboard, Loader2, LogOut, UserCheck, Users, Wallet } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { KpiCards } from "@/components/dashboard/kpi-cards";
@@ -76,8 +76,6 @@ export function AppShell() {
       </header>
 
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
-        {user?.role === "SUPER" && <CreateHeadUser />}
-
         <KpiCards />
 
         <Tabs defaultValue="dashboard">
@@ -94,6 +92,12 @@ export function AppShell() {
               <BarChart3 className="h-3.5 w-3.5" />
               สรุปยอดโบนัส
             </TabsTrigger>
+            {user?.role === "SUPER" && (
+              <TabsTrigger value="accounts" className="gap-1.5">
+                <Users className="h-3.5 w-3.5" />
+                จัดการบัญชี
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="dashboard">
@@ -105,6 +109,11 @@ export function AppShell() {
           <TabsContent value="bonus">
             <BonusTab />
           </TabsContent>
+          {user?.role === "SUPER" && (
+            <TabsContent value="accounts">
+              <CreateHeadUser />
+            </TabsContent>
+          )}
         </Tabs>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
